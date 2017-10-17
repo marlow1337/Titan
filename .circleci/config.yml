@@ -1,0 +1,28 @@
+version: 2
+jobs:
+  build:
+    working_directory: ~/repo
+    docker:
+      - image: ubuntu:rolling
+    steps:
+      - checkout
+      - run:
+          name: Install Dependencies
+          command: |
+            apt-get update -qq
+            apt-get install -y libgtk-3-dev gtk-sharp3 libappindicator3-dev
+      - run:
+          name: Install up-to-date Mono
+          command: |
+            apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
+            echo "deb http://download.mono-project.com/repo/ubuntu xenial main" | tee /etc/apt/sources.list.d/mono-official.list
+            apt-get update -qq
+            apt-get install -y mono-devel ca-certificates-mono
+      - run:
+          name: Build
+          command: |
+            chmod +x build.sh
+            ./build.sh
+      - store_artifacts:
+          path: ~/repo/Titan/Release/*.exe
+          destination: Titan
